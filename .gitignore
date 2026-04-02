@@ -43,3 +43,7 @@ app-example
 /ios
 /android
 
+.vscode
+
+CLAUDE.md
+.claude/

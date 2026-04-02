@@ -1,10 +1,10 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, Text } from 'react-native';
 
-export default function ProfileScreen() {
+export default function MatchesScreen() {
   return (
     <SafeAreaView style={styles.screen}>
-      <Text style={styles.placeholder}>Profile</Text>
+      <Text style={styles.placeholder}>Matches</Text>
     </SafeAreaView>
   );
 }
