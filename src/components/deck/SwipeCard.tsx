@@ -10,10 +10,12 @@ import Animated, {
   Extrapolation,
 } from 'react-native-reanimated';
 import React, { forwardRef, useImperativeHandle } from 'react';
-import { Dimensions, StyleSheet, Text } from 'react-native';
+import { Dimensions, Text } from 'react-native';
 
 import MovieCard from '@/components/movie-card/MovieCard';
 import type { Movie } from '@/types';
+
+import { styles } from './SwipeCard.styles';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -97,20 +99,34 @@ const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(function SwipeCard(
     };
   });
 
-  const likeStyle = useAnimatedStyle(() => ({ opacity: likeOpacity.value }));
-  const nopeStyle = useAnimatedStyle(() => ({ opacity: nopeOpacity.value }));
+  const likeBackdropStyle = useAnimatedStyle(() => ({
+    opacity: likeOpacity.value,
+    transform: [{ translateX: interpolate(likeOpacity.value, [0, 1], [-24, 0]) }],
+  }));
+  const nopeBackdropStyle = useAnimatedStyle(() => ({
+    opacity: nopeOpacity.value,
+    transform: [{ translateX: interpolate(nopeOpacity.value, [0, 1], [24, 0]) }],
+  }));
 
   return (
     <GestureDetector gesture={gesture}>
-      <Animated.View style={[styles.container, cardStyle]}>
-        <MovieCard movie={movie} />
-
-        <Animated.View style={[styles.indicator, styles.indicatorLike, likeStyle]}>
-          <Text style={[styles.indicatorText, styles.indicatorTextLike]}>LIKE</Text>
+      <Animated.View style={styles.container}>
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.backdropIndicator, styles.backdropIndicatorLike, likeBackdropStyle]}
+        >
+          <Text style={[styles.backdropIndicatorText, styles.backdropIndicatorTextLike]}>LIKE</Text>
         </Animated.View>
 
-        <Animated.View style={[styles.indicator, styles.indicatorNope, nopeStyle]}>
-          <Text style={[styles.indicatorText, styles.indicatorTextNope]}>NOPE</Text>
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.backdropIndicator, styles.backdropIndicatorNope, nopeBackdropStyle]}
+        >
+          <Text style={[styles.backdropIndicatorText, styles.backdropIndicatorTextNope]}>NOPE</Text>
+        </Animated.View>
+
+        <Animated.View style={[styles.cardLayer, cardStyle]}>
+          <MovieCard movie={movie} />
         </Animated.View>
       </Animated.View>
     </GestureDetector>
@@ -118,38 +134,3 @@ const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(function SwipeCard(
 });
 
 export default SwipeCard;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  indicator: {
-    position: 'absolute',
-    top: 48,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 3,
-  },
-  indicatorLike: {
-    left: 24,
-    borderColor: '#ff8e80',
-    transform: [{ rotate: '-15deg' }],
-  },
-  indicatorNope: {
-    right: 24,
-    borderColor: '#ffffff',
-    transform: [{ rotate: '15deg' }],
-  },
-  indicatorText: {
-    fontSize: 22,
-    fontWeight: '900',
-    letterSpacing: 2,
-  },
-  indicatorTextLike: {
-    color: '#ff8e80',
-  },
-  indicatorTextNope: {
-    color: '#ffffff',
-  },
-});

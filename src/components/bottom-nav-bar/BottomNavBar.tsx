@@ -47,7 +47,7 @@ export default function BottomNavBar() {
               label={label}
               icon={<Icon active={isActive} />}
               isActive={isActive}
-              onPress={() => router.push(href)}
+              onPress={() => router.replace(href)}
             />
           );
         })}

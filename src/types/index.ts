@@ -23,6 +23,15 @@ export interface Actor {
   knownFor: string;
 }
 
+export type WatchProviderCategory = 'flatrate' | 'rent' | 'buy' | 'free' | 'ads';
+
+export interface StreamingPlatform {
+  id: number;
+  name: string;
+  logoUrl: string;
+  categories: WatchProviderCategory[];
+}
+
 export interface TMDBMovieRaw {
   id: number;
   title: string;
@@ -39,4 +48,24 @@ export interface TMDBResponse<T> {
   results: T[];
   total_pages: number;
   total_results: number;
+}
+
+export interface TMDBWatchProvider {
+  provider_id: number;
+  provider_name: string;
+  logo_path: string | null;
+}
+
+export interface TMDBWatchCountryResult {
+  link?: string;
+  flatrate?: TMDBWatchProvider[];
+  rent?: TMDBWatchProvider[];
+  buy?: TMDBWatchProvider[];
+  free?: TMDBWatchProvider[];
+  ads?: TMDBWatchProvider[];
+}
+
+export interface TMDBWatchProvidersResponse {
+  id: number;
+  results: Record<string, TMDBWatchCountryResult>;
 }

@@ -46,8 +46,6 @@ export default function MovieCard({ movie }: MovieCardProps) {
           )}
         </View>
 
-        <Text style={styles.title}>{movie.title}</Text>
-
         <View style={styles.ratingRow}>
           <StarRating rating={movie.rating} />
           <Text style={styles.ratingText}>{movie.rating.toFixed(1)} IMDB</Text>
