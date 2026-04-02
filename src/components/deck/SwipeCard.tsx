@@ -9,21 +9,16 @@ import Animated, {
   interpolate,
   Extrapolation,
 } from 'react-native-reanimated';
-import React from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import React, { forwardRef, useImperativeHandle } from 'react';
+import { Dimensions, StyleSheet, Text } from 'react-native';
 
 import MovieCard from '@/components/movie-card/MovieCard';
 import type { Movie } from '@/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-/** Seuil en px au-delà duquel le swipe est validé */
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.3;
-
-/** Vélocité minimale pour valider un swipe rapide */
 const VELOCITY_THRESHOLD = 800;
-
-/** Angle de rotation max (en degrés) au bord de l'écran */
 const MAX_ROTATION = 15;
 
 interface SwipeCardProps {
@@ -32,11 +27,18 @@ interface SwipeCardProps {
   onDislike: () => void;
 }
 
-export default function SwipeCard({ movie, onLike, onDislike }: SwipeCardProps) {
+export interface SwipeCardRef {
+  triggerLike: () => void;
+  triggerDislike: () => void;
+}
+
+const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(function SwipeCard(
+  { movie, onLike, onDislike },
+  ref,
+) {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
 
-  // Opacité des indicateurs LIKE / NOPE (0 → 1 selon la direction du drag)
   const likeOpacity = useDerivedValue(() =>
     interpolate(translateX.value, [0, SWIPE_THRESHOLD], [0, 1], Extrapolation.CLAMP),
   );
@@ -44,10 +46,19 @@ export default function SwipeCard({ movie, onLike, onDislike }: SwipeCardProps) 
     interpolate(translateX.value, [-SWIPE_THRESHOLD, 0], [1, 0], Extrapolation.CLAMP),
   );
 
+  const animateOut = (direction: 'left' | 'right', callback: () => void) => {
+    const target = direction === 'right' ? SCREEN_WIDTH * 1.5 : -SCREEN_WIDTH * 1.5;
+    translateX.value = withTiming(target, { duration: 280 }, () => runOnJS(callback)());
+  };
+
+  useImperativeHandle(ref, () => ({
+    triggerLike: () => animateOut('right', onLike),
+    triggerDislike: () => animateOut('left', onDislike),
+  }));
+
   const gesture = Gesture.Pan()
     .onUpdate((e) => {
       translateX.value = e.translationX;
-      // Légère élévation verticale pendant le drag
       translateY.value = e.translationY * 0.15;
     })
     .onEnd((e) => {
@@ -65,7 +76,6 @@ export default function SwipeCard({ movie, onLike, onDislike }: SwipeCardProps) 
           runOnJS(onDislike)(),
         );
       } else {
-        // Snap back au centre
         translateX.value = withSpring(0, { damping: 15, stiffness: 120 });
         translateY.value = withSpring(0, { damping: 15, stiffness: 120 });
       }
@@ -95,19 +105,19 @@ export default function SwipeCard({ movie, onLike, onDislike }: SwipeCardProps) 
       <Animated.View style={[styles.container, cardStyle]}>
         <MovieCard movie={movie} />
 
-        {/* Indicateur LIKE */}
         <Animated.View style={[styles.indicator, styles.indicatorLike, likeStyle]}>
           <Text style={[styles.indicatorText, styles.indicatorTextLike]}>LIKE</Text>
         </Animated.View>
 
-        {/* Indicateur NOPE */}
         <Animated.View style={[styles.indicator, styles.indicatorNope, nopeStyle]}>
           <Text style={[styles.indicatorText, styles.indicatorTextNope]}>NOPE</Text>
         </Animated.View>
       </Animated.View>
     </GestureDetector>
   );
-}
+});
+
+export default SwipeCard;
 
 const styles = StyleSheet.create({
   container: {

@@ -1,43 +1,49 @@
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { Movie } from '@/types';
-import SwipeCard from './SwipeCard';
+import SwipeCard, { SwipeCardRef } from './SwipeCard';
 
 interface DeckContainerProps {
   movies: Movie[];
   onLike: (movie: Movie) => void;
   onDislike: (movie: Movie) => void;
+  onMovieConsumed?: (remainingCount: number) => void;
 }
 
-/** Méthodes exposées aux parents via ref (utilisées par SwipeActions) */
 export interface DeckContainerRef {
   swipeLike: () => void;
   swipeDislike: () => void;
 }
 
 const DeckContainer = forwardRef<DeckContainerRef, DeckContainerProps>(
-  ({ movies, onLike, onDislike }, ref) => {
+  ({ movies, onLike, onDislike, onMovieConsumed }, ref) => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const cardRef = useRef<SwipeCardRef>(null);
 
     const currentMovie = movies[currentIndex];
     const hasMore = currentIndex < movies.length;
 
+    const advance = (nextIndex: number) => {
+      setCurrentIndex(nextIndex);
+      onMovieConsumed?.(movies.length - nextIndex);
+    };
+
     const handleLike = () => {
       if (!currentMovie) return;
       onLike(currentMovie);
-      setCurrentIndex((prev) => prev + 1);
+      advance(currentIndex + 1);
     };
 
     const handleDislike = () => {
       if (!currentMovie) return;
       onDislike(currentMovie);
-      setCurrentIndex((prev) => prev + 1);
+      advance(currentIndex + 1);
     };
 
     useImperativeHandle(ref, () => ({
-      swipeLike: handleLike,
-      swipeDislike: handleDislike,
+      swipeLike: () => cardRef.current?.triggerLike(),
+      swipeDislike: () => cardRef.current?.triggerDislike(),
     }));
 
     if (!hasMore || !currentMovie) {
@@ -51,6 +57,7 @@ const DeckContainer = forwardRef<DeckContainerRef, DeckContainerProps>(
 
     return (
       <SwipeCard
+        ref={cardRef}
         key={currentMovie.id}
         movie={currentMovie}
         onLike={handleLike}
