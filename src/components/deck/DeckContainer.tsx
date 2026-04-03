@@ -16,6 +16,7 @@ interface DeckContainerProps {
 export interface DeckContainerRef {
   swipeLike: () => void;
   swipeDislike: () => void;
+  getCurrentMovie: () => Movie | undefined;
 }
 
 const DeckContainer = forwardRef<DeckContainerRef, DeckContainerProps>(
@@ -46,6 +47,7 @@ const DeckContainer = forwardRef<DeckContainerRef, DeckContainerProps>(
     useImperativeHandle(ref, () => ({
       swipeLike: () => cardRef.current?.triggerLike(),
       swipeDislike: () => cardRef.current?.triggerDislike(),
+      getCurrentMovie: () => movies[currentIndex],
     }));
 
     if (!hasMore || !currentMovie) {

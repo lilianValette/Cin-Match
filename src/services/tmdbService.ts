@@ -29,42 +29,33 @@ function mapMovie(raw: TMDBMovieRaw): Movie {
     id: raw.id,
     title: raw.title,
     overview: raw.overview,
-    posterUrl: raw.poster_path
-      ? `${Config.TMDB_IMAGE_BASE_URL}${raw.poster_path}`
-      : '',
-    backdropUrl: raw.backdrop_path
-      ? `${Config.TMDB_IMAGE_BASE_URL}${raw.backdrop_path}`
-      : '',
+    posterUrl: raw.poster_path ? `${Config.TMDB_IMAGE_BASE_URL}${raw.poster_path}` : '',
+    backdropUrl: raw.backdrop_path ? `${Config.TMDB_IMAGE_BASE_URL}${raw.backdrop_path}` : '',
     genres: (raw.genre_ids ?? []).map((id) => ({ id, name: GENRE_CACHE[id] ?? '' })),
     rating: Math.round(raw.vote_average * 10) / 10,
     year: raw.release_date ? Number(raw.release_date.slice(0, 4)) : 0,
-    duration: 0, // non disponible sur /discover — à enrichir via getMovieDetails si besoin
+    duration: 0,
   };
 }
 
 /**
  * Récupère une page de films aléatoires depuis /discover/movie.
- * TMDB retourne 20 films par page. On tire une page au hasard parmi les 100 premières.
+ * TMDB retourne 20 films par page. On tire une page au hasard parmi les 500 premières.
  */
 export async function fetchRandomMoviePage(): Promise<{ movies: Movie[]; totalPages: number }> {
   await fetchGenres();
 
-  // Première requête pour connaître le nombre total de pages
   const firstPage = await tmdbFetch<TMDBResponse<TMDBMovieRaw>>('/discover/movie', {
     language: 'fr-FR',
     sort_by: 'popularity.desc',
     page: '1',
   });
 
-  // TMDB plafonne à 500 pages max via l'API publique
   const maxPage = Math.min(firstPage.total_pages, 500);
   const randomPage = Math.floor(Math.random() * maxPage) + 1;
 
   if (randomPage === 1) {
-    return {
-      movies: firstPage.results.map(mapMovie),
-      totalPages: maxPage,
-    };
+    return { movies: firstPage.results.map(mapMovie), totalPages: maxPage };
   }
 
   const data = await tmdbFetch<TMDBResponse<TMDBMovieRaw>>('/discover/movie', {
@@ -73,10 +64,7 @@ export async function fetchRandomMoviePage(): Promise<{ movies: Movie[]; totalPa
     page: String(randomPage),
   });
 
-  return {
-    movies: data.results.map(mapMovie),
-    totalPages: maxPage,
-  };
+  return { movies: data.results.map(mapMovie), totalPages: maxPage };
 }
 
 export async function fetchMovieWatchProviders(
@@ -86,7 +74,6 @@ export async function fetchMovieWatchProviders(
   const data = await tmdbFetch<TMDBWatchProvidersResponse>(`/movie/${movieId}/watch/providers`);
   const country = data.results?.[countryCode] ?? data.results?.US;
   if (!country) return [];
-
   return mapWatchProviders(country);
 }
 
@@ -95,8 +82,7 @@ function mapWatchProviders(country: TMDBWatchCountryResult): StreamingPlatform[]
   const providersById = new Map<number, StreamingPlatform>();
 
   categories.forEach((category) => {
-    const providers = country[category] ?? [];
-    providers.forEach((provider) => {
+    (country[category] ?? []).forEach((provider) => {
       const existing = providersById.get(provider.provider_id);
       const logoUrl = provider.logo_path ? `https://image.tmdb.org/t/p/w92${provider.logo_path}` : '';
 
@@ -107,10 +93,7 @@ function mapWatchProviders(country: TMDBWatchCountryResult): StreamingPlatform[]
           logoUrl,
           categories: [category],
         });
-        return;
-      }
-
-      if (!existing.categories.includes(category)) {
+      } else if (!existing.categories.includes(category)) {
         existing.categories.push(category);
       }
     });

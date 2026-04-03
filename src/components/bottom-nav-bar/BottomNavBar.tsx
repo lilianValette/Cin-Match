@@ -12,19 +12,19 @@ const NAV_ITEMS = [
   {
     key: 'discover',
     href: '/discover' as const,
-    label: 'Discovery',
+    label: 'Découverte',
     Icon: DiscoveryIcon,
   },
   {
     key: 'matches',
     href: '/matches' as const,
-    label: 'Matches',
+    label: 'Matchs',
     Icon: MatchesIcon,
   },
   {
     key: 'profile',
     href: '/profile' as const,
-    label: 'Profile',
+    label: 'Profil',
     Icon: ProfileIcon,
   },
 ] as const;
@@ -33,6 +33,8 @@ export default function BottomNavBar() {
   const router = useRouter();
   const segments = useSegments();
   const activeSegment = segments[0] ?? '';
+
+  if (segments[0] === 'movie') return null;
 
   return (
     <View style={styles.wrapper}>

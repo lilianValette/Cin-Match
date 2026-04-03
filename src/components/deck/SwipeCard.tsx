@@ -115,14 +115,14 @@ const SwipeCard = forwardRef<SwipeCardRef, SwipeCardProps>(function SwipeCard(
           pointerEvents="none"
           style={[styles.backdropIndicator, styles.backdropIndicatorLike, likeBackdropStyle]}
         >
-          <Text style={[styles.backdropIndicatorText, styles.backdropIndicatorTextLike]}>LIKE</Text>
+          <Text style={[styles.backdropIndicatorText, styles.backdropIndicatorTextLike]}>OUI</Text>
         </Animated.View>
 
         <Animated.View
           pointerEvents="none"
           style={[styles.backdropIndicator, styles.backdropIndicatorNope, nopeBackdropStyle]}
         >
-          <Text style={[styles.backdropIndicatorText, styles.backdropIndicatorTextNope]}>NOPE</Text>
+          <Text style={[styles.backdropIndicatorText, styles.backdropIndicatorTextNope]}>NON</Text>
         </Animated.View>
 
         <Animated.View style={[styles.cardLayer, cardStyle]}>

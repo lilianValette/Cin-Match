@@ -14,7 +14,10 @@ export default function MovieDetailsScreen() {
 	const params = useLocalSearchParams<{ id?: string | string[] }>();
 	const idParam = Array.isArray(params.id) ? params.id[0] : params.id;
 	const movieId = Number(idParam);
-	const movie = useAppStore((state) => (Number.isFinite(movieId) ? state.watchlistById[movieId] : undefined));
+	const movie = useAppStore((state) => {
+		if (!Number.isFinite(movieId)) return undefined;
+		return state.watchlistById[movieId] ?? (state.previewMovie?.id === movieId ? state.previewMovie : undefined);
+	});
 	const [platforms, setPlatforms] = useState<StreamingPlatform[]>([]);
 	const [isLoadingPlatforms, setIsLoadingPlatforms] = useState(false);
 	const [platformMode, setPlatformMode] = useState<'subscription' | 'purchase'>('subscription');
@@ -76,7 +79,7 @@ export default function MovieDetailsScreen() {
 				<Image source={{ uri: movie.backdropUrl || movie.posterUrl }} style={styles.backdrop} contentFit="cover" />
 				<Text style={styles.title}>{movie.title.replace(/\n/g, ' ')}</Text>
 				<Text style={styles.meta}>
-					{movie.year} • {movie.duration > 0 ? `${movie.duration} min` : 'Duree inconnue'} • {movie.rating.toFixed(1)} IMDB
+					{movie.year} • {movie.duration > 0 ? `${movie.duration} min` : 'Durée inconnue'} • {movie.rating.toFixed(1)} IMDB
 				</Text>
 				<View style={styles.genreRow}>
 					{movie.genres.map((genre) => (
@@ -91,33 +94,17 @@ export default function MovieDetailsScreen() {
 					<View style={styles.providerModeSwitch}>
 						<Pressable
 							onPress={() => setPlatformMode('subscription')}
-							style={[
-								styles.modeButton,
-								platformMode === 'subscription' && styles.modeButtonActive,
-							]}
+							style={[styles.modeButton, platformMode === 'subscription' && styles.modeButtonActive]}
 						>
-							<Text
-								style={[
-									styles.modeButtonText,
-									platformMode === 'subscription' && styles.modeButtonTextActive,
-								]}
-							>
+							<Text style={[styles.modeButtonText, platformMode === 'subscription' && styles.modeButtonTextActive]}>
 								Abonnements
 							</Text>
 						</Pressable>
 						<Pressable
 							onPress={() => setPlatformMode('purchase')}
-							style={[
-								styles.modeButton,
-								platformMode === 'purchase' && styles.modeButtonActive,
-							]}
+							style={[styles.modeButton, platformMode === 'purchase' && styles.modeButtonActive]}
 						>
-							<Text
-								style={[
-									styles.modeButtonText,
-									platformMode === 'purchase' && styles.modeButtonTextActive,
-								]}
-							>
+							<Text style={[styles.modeButtonText, platformMode === 'purchase' && styles.modeButtonTextActive]}>
 								Achats
 							</Text>
 						</Pressable>
@@ -131,11 +118,7 @@ export default function MovieDetailsScreen() {
 							{displayedPlatforms.map((platform) => (
 								<View key={platform.id} style={styles.providerCard}>
 									{platform.logoUrl ? (
-										<Image
-											source={{ uri: platform.logoUrl }}
-											style={styles.providerLogo}
-											contentFit="cover"
-										/>
+										<Image source={{ uri: platform.logoUrl }} style={styles.providerLogo} contentFit="cover" />
 									) : null}
 									<Text style={styles.providerName}>{platform.name}</Text>
 									<Text style={styles.providerCategories}>
@@ -150,4 +133,3 @@ export default function MovieDetailsScreen() {
 		</SafeAreaView>
 	);
 }
-

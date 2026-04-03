@@ -1,39 +1,40 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useMemo, useRef } from 'react';
-import { ActivityIndicator, SafeAreaView, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 import DeckContainer, { DeckContainerRef } from '@/components/deck/DeckContainer';
 import SwipeActions from '@/components/swipe-actions/SwipeActions';
 import { useDiscoverMovies } from '@/hooks/useTMDB';
 import { useAppStore } from '@/store/useAppStore';
-import type { Movie } from '@/types';
 
 import { styles } from './index.styles';
 
 export default function DiscoverScreen() {
+  const router = useRouter();
   const deckRef = useRef<DeckContainerRef>(null);
+
   const watchlistMovieIds = useAppStore((state) => state.watchlistMovieIds);
   const dislikedMovieIds = useAppStore((state) => state.dislikedMovieIds);
+  const likeMovie = useAppStore((state) => state.likeMovie);
+  const dislikeMovie = useAppStore((state) => state.dislikeMovie);
+  const setPreviewMovie = useAppStore((state) => state.setPreviewMovie);
+
   const swipedMovieIds = useMemo(
     () => [...watchlistMovieIds, ...Object.keys(dislikedMovieIds).map(Number)],
     [watchlistMovieIds, dislikedMovieIds],
   );
+
   const { movies, isLoading, error, onMovieConsumed } = useDiscoverMovies({
     excludedMovieIds: swipedMovieIds,
   });
-  const likeMovie = useAppStore((state) => state.likeMovie);
-  const dislikeMovie = useAppStore((state) => state.dislikeMovie);
-
-  const handleLike = (movie: Movie) => {
-    likeMovie(movie);
-  };
-
-  const handleDislike = (movie: Movie) => {
-    dislikeMovie(movie.id);
-  };
 
   const handleInfo = () => {
-    // TODO: naviguer vers la fiche du film
+    const movie = deckRef.current?.getCurrentMovie();
+    if (!movie) return;
+    setPreviewMovie(movie);
+    router.push(`/movie/${movie.id}`);
   };
 
   if (error) {
@@ -58,8 +59,8 @@ export default function DiscoverScreen() {
         <DeckContainer
           ref={deckRef}
           movies={movies}
-          onLike={handleLike}
-          onDislike={handleDislike}
+          onLike={likeMovie}
+          onDislike={(movie) => dislikeMovie(movie.id)}
           onMovieConsumed={onMovieConsumed}
         />
         <SwipeActions
@@ -71,4 +72,3 @@ export default function DiscoverScreen() {
     </GestureHandlerRootView>
   );
 }
-
