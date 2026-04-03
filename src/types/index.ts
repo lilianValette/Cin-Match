@@ -32,6 +32,23 @@ export interface StreamingPlatform {
   categories: WatchProviderCategory[];
 }
 
+export interface PersonCredit {
+  id: number;
+  name: string;
+}
+
+export interface MovieCredits {
+  /** Top 10 cast members by billing order */
+  topCast: PersonCredit[];
+  directors: PersonCredit[];
+}
+
+export interface DiscoveryFilters {
+  includedGenres: number[];
+  excludedGenres: number[];
+  minReleaseYear: number;
+}
+
 export interface TMDBMovieRaw {
   id: number;
   title: string;

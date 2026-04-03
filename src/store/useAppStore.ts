@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import type { Movie } from '@/types';
+import type { DiscoveryFilters, Movie } from '@/types';
 
 interface AppStore {
 	watchlistMovieIds: number[];
@@ -13,8 +13,11 @@ interface AppStore {
 	removeFromWatchlist: (movieId: number) => void;
 	clearWatchlist: () => void;
 	getWatchlist: () => Movie[];
+	filters: DiscoveryFilters;
 	isLiked: (movieId: number) => boolean;
 	hasSwiped: (movieId: number) => boolean;
+	updateFilters: (newFilters: Partial<DiscoveryFilters>) => void;
+	resetSwipes: () => void;
 }
 
 function withoutId(record: Record<number, true>, id: number): Record<number, true> {
@@ -41,6 +44,11 @@ export const useAppStore = create<AppStore>((set, get) => ({
 	watchlistById: {},
 	dislikedMovieIds: {},
 	previewMovie: null,
+	filters: {
+		includedGenres: [],
+		excludedGenres: [],
+		minReleaseYear: 1990,
+	},
 
 	setPreviewMovie: (movie) => set({ previewMovie: movie }),
 
@@ -87,4 +95,9 @@ export const useAppStore = create<AppStore>((set, get) => ({
 		const { watchlistById, dislikedMovieIds } = get();
 		return Boolean(watchlistById[movieId] || dislikedMovieIds[movieId]);
 	},
+
+	updateFilters: (newFilters) =>
+		set((state) => ({ filters: { ...state.filters, ...newFilters } })),
+
+	resetSwipes: () => set({ watchlistMovieIds: [], watchlistById: {}, dislikedMovieIds: {} }),
 }));

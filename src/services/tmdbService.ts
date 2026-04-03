@@ -1,6 +1,7 @@
 import { tmdbFetch } from './api';
 import type {
   Movie,
+  MovieCredits,
   StreamingPlatform,
   TMDBMovieRaw,
   TMDBResponse,
@@ -65,6 +66,24 @@ export async function fetchRandomMoviePage(): Promise<{ movies: Movie[]; totalPa
   });
 
   return { movies: data.results.map(mapMovie), totalPages: maxPage };
+}
+
+// Raw TMDB credits types — local only
+interface TMDBCastRaw { id: number; name: string; order: number }
+interface TMDBCrewRaw { id: number; name: string; job: string }
+interface TMDBCreditsRaw { cast: TMDBCastRaw[]; crew: TMDBCrewRaw[] }
+
+export async function fetchMovieCredits(movieId: number): Promise<MovieCredits> {
+  const data = await tmdbFetch<TMDBCreditsRaw>(`/movie/${movieId}/credits`, { language: 'fr-FR' });
+  return {
+    topCast: data.cast
+      .sort((a, b) => a.order - b.order)
+      .slice(0, 10)
+      .map(({ id, name }) => ({ id, name })),
+    directors: data.crew
+      .filter((m) => m.job === 'Director')
+      .map(({ id, name }) => ({ id, name })),
+  };
 }
 
 export async function fetchMovieWatchProviders(
