@@ -1,7 +1,9 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import type { Movie } from '@/types';
+
+import { styles } from './DeckContainer.styles';
 import SwipeCard, { SwipeCardRef } from './SwipeCard';
 
 interface DeckContainerProps {
@@ -70,21 +72,3 @@ const DeckContainer = forwardRef<DeckContainerRef, DeckContainerProps>(
 DeckContainer.displayName = 'DeckContainer';
 
 export default DeckContainer;
-
-const styles = StyleSheet.create({
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  emptyText: {
-    color: '#ffffff',
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  emptySubtext: {
-    color: '#B0B4BA',
-    fontSize: 14,
-  },
-});

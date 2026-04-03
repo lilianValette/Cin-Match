@@ -1,24 +1,35 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import React, { useRef } from 'react';
-import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import React, { useMemo, useRef } from 'react';
+import { ActivityIndicator, SafeAreaView, Text, View } from 'react-native';
 
 import DeckContainer, { DeckContainerRef } from '@/components/deck/DeckContainer';
 import SwipeActions from '@/components/swipe-actions/SwipeActions';
 import { useDiscoverMovies } from '@/hooks/useTMDB';
+import { useAppStore } from '@/store/useAppStore';
 import type { Movie } from '@/types';
+
+import { styles } from './index.styles';
 
 export default function DiscoverScreen() {
   const deckRef = useRef<DeckContainerRef>(null);
-  const { movies, isLoading, error, onMovieConsumed } = useDiscoverMovies();
+  const watchlistMovieIds = useAppStore((state) => state.watchlistMovieIds);
+  const dislikedMovieIds = useAppStore((state) => state.dislikedMovieIds);
+  const swipedMovieIds = useMemo(
+    () => [...watchlistMovieIds, ...Object.keys(dislikedMovieIds).map(Number)],
+    [watchlistMovieIds, dislikedMovieIds],
+  );
+  const { movies, isLoading, error, onMovieConsumed } = useDiscoverMovies({
+    excludedMovieIds: swipedMovieIds,
+  });
+  const likeMovie = useAppStore((state) => state.likeMovie);
+  const dislikeMovie = useAppStore((state) => state.dislikeMovie);
 
   const handleLike = (movie: Movie) => {
-    // TODO: enregistrer le like dans le store
-    console.log('liked:', movie.title);
+    likeMovie(movie);
   };
 
   const handleDislike = (movie: Movie) => {
-    // TODO: enregistrer le dislike dans le store
-    console.log('disliked:', movie.title);
+    dislikeMovie(movie.id);
   };
 
   const handleInfo = () => {
@@ -61,26 +72,3 @@ export default function DiscoverScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-  screen: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingBottom: 100,
-  },
-  centered: {
-    flex: 1,
-    backgroundColor: '#000000',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  errorText: {
-    color: '#ff8e80',
-    fontSize: 14,
-    textAlign: 'center',
-    paddingHorizontal: 32,
-  },
-});

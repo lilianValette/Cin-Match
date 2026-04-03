@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   chip: {
     paddingHorizontal: 12,
@@ -47,15 +47,6 @@ export const styles = StyleSheet.create({
   },
   chipTextPremium: {
     color: '#131313',
-  },
-  title: {
-    fontSize: 38,
-    fontWeight: '900',
-    color: '#ffffff',
-    lineHeight: 42,
-    letterSpacing: -0.5,
-    textTransform: 'uppercase',
-    marginBottom: 10,
   },
   ratingRow: {
     flexDirection: 'row',

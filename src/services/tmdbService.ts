@@ -1,5 +1,13 @@
 import { tmdbFetch } from './api';
-import type { Movie, TMDBMovieRaw, TMDBResponse } from '@/types';
+import type {
+  Movie,
+  StreamingPlatform,
+  TMDBMovieRaw,
+  TMDBResponse,
+  TMDBWatchCountryResult,
+  TMDBWatchProvidersResponse,
+  WatchProviderCategory,
+} from '@/types';
 import { Config } from '@/constants/Config';
 
 /** Genres TMDB → nom lisible (cache local pour éviter un appel par film) */
@@ -69,4 +77,44 @@ export async function fetchRandomMoviePage(): Promise<{ movies: Movie[]; totalPa
     movies: data.results.map(mapMovie),
     totalPages: maxPage,
   };
+}
+
+export async function fetchMovieWatchProviders(
+  movieId: number,
+  countryCode = 'FR',
+): Promise<StreamingPlatform[]> {
+  const data = await tmdbFetch<TMDBWatchProvidersResponse>(`/movie/${movieId}/watch/providers`);
+  const country = data.results?.[countryCode] ?? data.results?.US;
+  if (!country) return [];
+
+  return mapWatchProviders(country);
+}
+
+function mapWatchProviders(country: TMDBWatchCountryResult): StreamingPlatform[] {
+  const categories: WatchProviderCategory[] = ['flatrate', 'rent', 'buy', 'free', 'ads'];
+  const providersById = new Map<number, StreamingPlatform>();
+
+  categories.forEach((category) => {
+    const providers = country[category] ?? [];
+    providers.forEach((provider) => {
+      const existing = providersById.get(provider.provider_id);
+      const logoUrl = provider.logo_path ? `https://image.tmdb.org/t/p/w92${provider.logo_path}` : '';
+
+      if (!existing) {
+        providersById.set(provider.provider_id, {
+          id: provider.provider_id,
+          name: provider.provider_name,
+          logoUrl,
+          categories: [category],
+        });
+        return;
+      }
+
+      if (!existing.categories.includes(category)) {
+        existing.categories.push(category);
+      }
+    });
+  });
+
+  return Array.from(providersById.values());
 }
