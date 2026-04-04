@@ -33,7 +33,7 @@ export default function MatchesScreen() {
     return (
       <SafeAreaView style={[styles.screen, styles.emptyScreen]}>
         <Text style={styles.emptyTitle}>Votre watchlist est vide</Text>
-        <Text style={styles.emptyText}>Likez des films dans Discover pour les retrouver ici.</Text>
+        <Text style={styles.emptyText}>Likez des films dans Découverte pour les retrouver ici.</Text>
       </SafeAreaView>
     );
   }
