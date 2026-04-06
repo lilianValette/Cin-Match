@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
 
 import ProfileDetailModal from '@/components/ui/ProfileDetailModal';
+import { resetDiscoverCache } from '@/hooks/useTMDB';
 import { fetchMovieCredits } from '@/services/tmdbService';
 import { useAppStore } from '@/store/useAppStore';
 import type { Movie, PersonCredit } from '@/types';
@@ -154,9 +155,17 @@ const SETTINGS_ITEMS = [
 
 export default function ProfileScreen() {
   const [detailsVisible, setDetailsVisible] = useState(false);
+  const [confirmResetVisible, setConfirmResetVisible] = useState(false);
 
   const watchlistMovieIds = useAppStore((state) => state.watchlistMovieIds);
   const watchlistById = useAppStore((state) => state.watchlistById);
+  const resetGenrePreferences = useAppStore((state) => state.resetGenrePreferences);
+
+  const handleConfirmReset = () => {
+    setConfirmResetVisible(false);
+    resetGenrePreferences();
+    resetDiscoverCache();
+  };
 
   const watchlist = useMemo(
     () =>
@@ -229,10 +238,46 @@ export default function ProfileScreen() {
                   <Text style={styles.soonText}>Bientôt</Text>
                 </View>
               </View>
-              {index < SETTINGS_ITEMS.length - 1 && <View style={styles.rowDivider} />}
+              <View style={styles.rowDivider} />
             </React.Fragment>
           ))}
+          <Pressable style={styles.settingsRow} onPress={() => setConfirmResetVisible(true)}>
+            <View style={[styles.settingsIconWrap, { backgroundColor: '#1a0a09' }]}>
+              <Ionicons name="refresh-outline" size={18} color="#ff5a4a" />
+            </View>
+            <Text style={[styles.settingsLabel, { color: '#ff5a4a' }]}>
+              Réinitialiser mes genres
+            </Text>
+          </Pressable>
         </View>
+
+        {/* ── Modale de confirmation reset genres ── */}
+        <Modal
+          visible={confirmResetVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setConfirmResetVisible(false)}
+        >
+          <View style={styles.modalBackdrop}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>Réinitialiser les genres ?</Text>
+              <Text style={styles.modalBody}>
+                Tes genres favoris seront remis à zéro et tu pourras en sélectionner de nouveaux.
+              </Text>
+              <View style={styles.modalActions}>
+                <Pressable
+                  style={styles.modalBtnCancel}
+                  onPress={() => setConfirmResetVisible(false)}
+                >
+                  <Text style={styles.modalBtnCancelText}>Annuler</Text>
+                </Pressable>
+                <Pressable style={styles.modalBtnConfirm} onPress={handleConfirmReset}>
+                  <Text style={styles.modalBtnConfirmText}>Réinitialiser</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
 
       </ScrollView>
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { fetchRandomMoviePage } from '@/services/tmdbService';
+import { useAppStore } from '@/store/useAppStore';
 import type { Movie } from '@/types';
 
 /** Nombre de films restants en deck sous lequel on déclenche le chargement suivant */
@@ -11,6 +12,39 @@ let DISCOVER_MOVIES_CACHE: Movie[] = [];
 let DISCOVER_HAS_LOADED = false;
 let DISCOVER_ERROR_CACHE: string | null = null;
 let DISCOVER_IS_FETCHING = false;
+
+/** Réinitialise le cache de découverte (à appeler après un changement de préférences). */
+export function resetDiscoverCache(): void {
+  DISCOVER_MOVIES_CACHE = [];
+  DISCOVER_HAS_LOADED = false;
+  DISCOVER_ERROR_CACHE = null;
+  DISCOVER_IS_FETCHING = false;
+}
+
+/**
+ * Sélectionne un genre pour le prochain fetch selon les poids favoris.
+ * 30 % du temps → pas de filtre (découverte libre).
+ * 70 % du temps → genre pondéré aléatoire parmi les favoris.
+ */
+function pickGenreForFetch(favoriteGenres: Record<number, number>): number | undefined {
+  const entries = Object.entries(favoriteGenres)
+    .map(([id, w]) => ({ id: Number(id), w }))
+    .filter(({ w }) => w > 0);
+
+  if (entries.length === 0) return undefined;
+
+  // 30 % de chance d'exploration sans filtre de genre
+  if (Math.random() < 0.3) return undefined;
+
+  // Sélection aléatoire pondérée
+  const total = entries.reduce((s, { w }) => s + w, 0);
+  let r = Math.random() * total;
+  for (const { id, w } of entries) {
+    r -= w;
+    if (r <= 0) return id;
+  }
+  return entries[entries.length - 1].id;
+}
 
 interface UseTMDBResult {
   movies: Movie[];
@@ -47,7 +81,11 @@ export function useDiscoverMovies(options?: UseDiscoverMoviesOptions): UseTMDBRe
     DISCOVER_ERROR_CACHE = null;
 
     try {
-      const { movies: newMovies } = await fetchRandomMoviePage();
+      // Sélectionne un genre selon les préférences pondérées
+      const favoriteGenres = useAppStore.getState().favoriteGenres;
+      const genreId = pickGenreForFetch(favoriteGenres);
+
+      const { movies: newMovies } = await fetchRandomMoviePage(genreId);
       setMovies((prev) => {
         const existingIds = new Set(prev.map((movie) => movie.id));
         const filtered = newMovies.filter((movie) => {

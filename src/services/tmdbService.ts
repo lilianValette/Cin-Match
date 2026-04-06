@@ -1,5 +1,6 @@
 import { tmdbFetch } from './api';
 import type {
+  Genre,
   Movie,
   MovieCredits,
   StreamingPlatform,
@@ -14,15 +15,19 @@ import { Config } from '@/constants/Config';
 /** Genres TMDB → nom lisible (cache local pour éviter un appel par film) */
 const GENRE_CACHE: Record<number, string> = {};
 
-export async function fetchGenres(): Promise<void> {
-  if (Object.keys(GENRE_CACHE).length > 0) return;
-
-  const data = await tmdbFetch<{ genres: { id: number; name: string }[] }>('/genre/movie/list', {
+export async function fetchAllGenres(): Promise<Genre[]> {
+  const data = await tmdbFetch<{ genres: Genre[] }>('/genre/movie/list', {
     language: 'fr-FR',
   });
   data.genres.forEach((g) => {
     GENRE_CACHE[g.id] = g.name;
   });
+  return data.genres;
+}
+
+export async function fetchGenres(): Promise<void> {
+  if (Object.keys(GENRE_CACHE).length > 0) return;
+  await fetchAllGenres();
 }
 
 function mapMovie(raw: TMDBMovieRaw): Movie {
@@ -41,16 +46,24 @@ function mapMovie(raw: TMDBMovieRaw): Movie {
 
 /**
  * Récupère une page de films aléatoires depuis /discover/movie.
+ * Si genreId est fourni, filtre les films par ce genre.
  * TMDB retourne 20 films par page. On tire une page au hasard parmi les 500 premières.
  */
-export async function fetchRandomMoviePage(): Promise<{ movies: Movie[]; totalPages: number }> {
+export async function fetchRandomMoviePage(
+  genreId?: number,
+): Promise<{ movies: Movie[]; totalPages: number }> {
   await fetchGenres();
 
-  const firstPage = await tmdbFetch<TMDBResponse<TMDBMovieRaw>>('/discover/movie', {
+  const baseParams: Record<string, string> = {
     language: 'fr-FR',
     sort_by: 'popularity.desc',
     page: '1',
-  });
+  };
+  if (genreId != null) {
+    baseParams.with_genres = String(genreId);
+  }
+
+  const firstPage = await tmdbFetch<TMDBResponse<TMDBMovieRaw>>('/discover/movie', baseParams);
 
   const maxPage = Math.min(firstPage.total_pages, 500);
   const randomPage = Math.floor(Math.random() * maxPage) + 1;
@@ -60,8 +73,7 @@ export async function fetchRandomMoviePage(): Promise<{ movies: Movie[]; totalPa
   }
 
   const data = await tmdbFetch<TMDBResponse<TMDBMovieRaw>>('/discover/movie', {
-    language: 'fr-FR',
-    sort_by: 'popularity.desc',
+    ...baseParams,
     page: String(randomPage),
   });
 

@@ -231,6 +231,62 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
+  // ── Modale de confirmation ────────────────────────────────
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  modalCard: {
+    backgroundColor: '#131313',
+    borderRadius: 20,
+    padding: 24,
+    gap: 12,
+    width: '100%',
+  },
+  modalTitle: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: -0.2,
+  },
+  modalBody: {
+    color: '#B0B4BA',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 4,
+  },
+  modalBtnCancel: {
+    flex: 1,
+    backgroundColor: '#262626',
+    borderRadius: 12,
+    paddingVertical: 13,
+    alignItems: 'center',
+  },
+  modalBtnCancelText: {
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  modalBtnConfirm: {
+    flex: 1,
+    backgroundColor: '#3a0f0d',
+    borderRadius: 12,
+    paddingVertical: 13,
+    alignItems: 'center',
+  },
+  modalBtnConfirmText: {
+    color: '#ff5a4a',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+
   // ── "+ de détails" button ──────────────────────────────────
   detailsButton: {
     flexDirection: 'row',
