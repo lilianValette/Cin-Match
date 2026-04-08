@@ -35,6 +35,7 @@ export interface StreamingPlatform {
 export interface PersonCredit {
   id: number;
   name: string;
+  profileUrl?: string;
 }
 
 export interface MovieCredits {

@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, Stack } from 'expo-router';
 import React from 'react';
 import { Pressable, SafeAreaView, Text, View } from 'react-native';
 
@@ -7,6 +7,7 @@ import { styles } from './index.styles';
 export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
+      <Stack.Screen options={{ title: 'CinéMatch' }} />
       <View style={styles.hero}>
         <Text style={styles.kicker}>CinMatch</Text>
         <Text style={styles.title}>Swipe des films et affine les recommandations.</Text>

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Stack } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
 
@@ -192,6 +193,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
+      <Stack.Screen options={{ title: 'Mon Profil — CinéMatch' }} />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         <Text style={styles.pageTitle}>Mon Profil</Text>

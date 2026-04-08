@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import React, { useMemo } from 'react';
 import { FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
@@ -32,6 +32,7 @@ export default function MatchesScreen() {
   if (watchlist.length === 0) {
     return (
       <SafeAreaView style={[styles.screen, styles.emptyScreen]}>
+        <Stack.Screen options={{ title: 'Mes Matchs — CinéMatch' }} />
         <Text style={styles.emptyTitle}>Votre watchlist est vide</Text>
         <Text style={styles.emptyText}>Likez des films dans Découverte pour les retrouver ici.</Text>
       </SafeAreaView>
@@ -40,6 +41,7 @@ export default function MatchesScreen() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
+      <Stack.Screen options={{ title: 'Mes Matchs — CinéMatch' }} />
       <SafeAreaView style={styles.screen}>
         <View style={styles.headerRow}>
           <Text style={styles.title}>Watchlist</Text>
