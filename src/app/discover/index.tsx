@@ -2,7 +2,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React, { useMemo, useRef } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 
 import DeckContainer, { DeckContainerRef } from '@/components/deck/DeckContainer';
 import SwipeActions from '@/components/swipe-actions/SwipeActions';
@@ -55,6 +55,7 @@ export default function DiscoverScreen() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
+      <Stack.Screen options={{ title: 'Découverte — CinéMatch' }} />
       <SafeAreaView style={styles.screen}>
         <DeckContainer
           ref={deckRef}

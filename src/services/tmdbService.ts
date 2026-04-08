@@ -69,9 +69,11 @@ export async function fetchRandomMoviePage(): Promise<{ movies: Movie[]; totalPa
 }
 
 // Raw TMDB credits types — local only
-interface TMDBCastRaw { id: number; name: string; order: number }
-interface TMDBCrewRaw { id: number; name: string; job: string }
+interface TMDBCastRaw { id: number; name: string; order: number; profile_path: string | null }
+interface TMDBCrewRaw { id: number; name: string; job: string; profile_path: string | null }
 interface TMDBCreditsRaw { cast: TMDBCastRaw[]; crew: TMDBCrewRaw[] }
+
+const PROFILE_BASE = 'https://image.tmdb.org/t/p/w185';
 
 export async function fetchMovieCredits(movieId: number): Promise<MovieCredits> {
   const data = await tmdbFetch<TMDBCreditsRaw>(`/movie/${movieId}/credits`, { language: 'fr-FR' });
@@ -79,10 +81,18 @@ export async function fetchMovieCredits(movieId: number): Promise<MovieCredits> 
     topCast: data.cast
       .sort((a, b) => a.order - b.order)
       .slice(0, 10)
-      .map(({ id, name }) => ({ id, name })),
+      .map(({ id, name, profile_path }) => ({
+        id,
+        name,
+        profileUrl: profile_path ? `${PROFILE_BASE}${profile_path}` : undefined,
+      })),
     directors: data.crew
       .filter((m) => m.job === 'Director')
-      .map(({ id, name }) => ({ id, name })),
+      .map(({ id, name, profile_path }) => ({
+        id,
+        name,
+        profileUrl: profile_path ? `${PROFILE_BASE}${profile_path}` : undefined,
+      })),
   };
 }
 

@@ -1,11 +1,11 @@
 import { Image } from 'expo-image';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
 
-import { fetchMovieWatchProviders } from '@/services/tmdbService';
+import { fetchMovieCredits, fetchMovieWatchProviders } from '@/services/tmdbService';
 import { useAppStore } from '@/store/useAppStore';
-import type { StreamingPlatform } from '@/types';
+import type { MovieCredits, StreamingPlatform } from '@/types';
 
 import { styles } from './movie.styles';
 
@@ -21,6 +21,7 @@ export default function MovieDetailsScreen() {
 	const [platforms, setPlatforms] = useState<StreamingPlatform[]>([]);
 	const [isLoadingPlatforms, setIsLoadingPlatforms] = useState(false);
 	const [platformMode, setPlatformMode] = useState<'subscription' | 'purchase'>('subscription');
+	const [credits, setCredits] = useState<MovieCredits | null>(null);
 
 	useEffect(() => {
 		if (!movieId || !Number.isFinite(movieId)) return;
@@ -29,19 +30,15 @@ export default function MovieDetailsScreen() {
 		setIsLoadingPlatforms(true);
 
 		fetchMovieWatchProviders(movieId, 'FR')
-			.then((data) => {
-				if (!cancelled) setPlatforms(data);
-			})
-			.catch(() => {
-				if (!cancelled) setPlatforms([]);
-			})
-			.finally(() => {
-				if (!cancelled) setIsLoadingPlatforms(false);
-			});
+			.then((data) => { if (!cancelled) setPlatforms(data); })
+			.catch(() => { if (!cancelled) setPlatforms([]); })
+			.finally(() => { if (!cancelled) setIsLoadingPlatforms(false); });
 
-		return () => {
-			cancelled = true;
-		};
+		fetchMovieCredits(movieId)
+			.then((data) => { if (!cancelled) setCredits(data); })
+			.catch(() => {});
+
+		return () => { cancelled = true; };
 	}, [movieId]);
 
 	if (!movie) {
@@ -70,6 +67,7 @@ export default function MovieDetailsScreen() {
 
 	return (
 		<SafeAreaView style={styles.screen}>
+			<Stack.Screen options={{ title: `${movie.title} — CinéMatch` }} />
 			<ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 				<View style={styles.topBar}>
 					<Pressable style={styles.backButton} onPress={() => router.back()}>
@@ -89,6 +87,43 @@ export default function MovieDetailsScreen() {
 					))}
 				</View>
 				<Text style={styles.overview}>{movie.overview}</Text>
+
+				{credits && credits.directors.length > 0 && (
+					<View style={styles.creditsSection}>
+						<Text style={styles.sectionTitle}>Réalisé par</Text>
+						<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.creditsRow}>
+							{credits.directors.map((d) => (
+								<View key={d.id} style={styles.creditItem}>
+									{d.profileUrl ? (
+										<Image source={{ uri: d.profileUrl }} style={styles.creditAvatar} contentFit="cover" />
+									) : (
+										<View style={styles.creditAvatarPlaceholder} />
+									)}
+									<Text style={styles.creditName} numberOfLines={2}>{d.name}</Text>
+								</View>
+							))}
+						</ScrollView>
+					</View>
+				)}
+
+				{credits && credits.topCast.length > 0 && (
+					<View style={styles.creditsSection}>
+						<Text style={styles.sectionTitle}>Avec</Text>
+						<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.creditsRow}>
+							{credits.topCast.slice(0, 8).map((actor) => (
+								<View key={actor.id} style={styles.creditItem}>
+									{actor.profileUrl ? (
+										<Image source={{ uri: actor.profileUrl }} style={styles.creditAvatar} contentFit="cover" />
+									) : (
+										<View style={styles.creditAvatarPlaceholder} />
+									)}
+									<Text style={styles.creditName} numberOfLines={2}>{actor.name}</Text>
+								</View>
+							))}
+						</ScrollView>
+					</View>
+				)}
+
 				<View style={styles.providersSection}>
 					<Text style={styles.sectionTitle}>Disponible sur</Text>
 					<View style={styles.providerModeSwitch}>

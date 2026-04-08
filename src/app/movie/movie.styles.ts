@@ -132,6 +132,38 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
+  creditsSection: {
+    gap: 10,
+  },
+  creditsRow: {
+    gap: 14,
+    paddingVertical: 4,
+    paddingHorizontal: 2,
+  },
+  creditItem: {
+    alignItems: 'center',
+    gap: 6,
+    width: 72,
+  },
+  creditAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#262626',
+  },
+  creditAvatarPlaceholder: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#262626',
+  },
+  creditName: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 15,
+  },
   emptyState: {
     flex: 1,
     alignItems: 'center',
