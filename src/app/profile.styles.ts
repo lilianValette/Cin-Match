@@ -195,18 +195,18 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   editBadge: {
-    backgroundColor: '#1c1700',
+    backgroundColor: '#2a2a2a',
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderWidth: 1,
-    borderColor: '#fdc003',
+    borderColor: '#505050',
   },
   editText: {
-    color: '#fdc003',
+    color: '#ffffff',
     fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.4,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   rowDivider: {
     height: 1,

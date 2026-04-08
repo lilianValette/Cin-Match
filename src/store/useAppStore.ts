@@ -9,6 +9,9 @@ export interface PersistedPrefs {
 	selectedPlatformIds: number[];
 	hasCompletedRegionSelection: boolean;
 	selectedRegionIds: string[];
+	watchlistMovieIds: number[];
+	watchlistById: Record<number, Movie>;
+	dislikedMovieIds: Record<number, true>;
 }
 
 interface AppStore {
@@ -152,6 +155,9 @@ export const useAppStore = create<AppStore>((set, get) => ({
 			selectedPlatformIds: prefs.selectedPlatformIds ?? [],
 			hasCompletedRegionSelection: prefs.hasCompletedRegionSelection ?? false,
 			selectedRegionIds: prefs.selectedRegionIds ?? [],
+			watchlistMovieIds: prefs.watchlistMovieIds ?? [],
+			watchlistById: prefs.watchlistById ?? {},
+			dislikedMovieIds: prefs.dislikedMovieIds ?? {},
 		}),
 
 	completeOnboarding: (genreIds) => {
