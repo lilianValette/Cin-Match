@@ -9,17 +9,20 @@ import { usePersistPreferences } from '@/hooks/usePersistPreferences';
 import { useAppStore } from '@/store/useAppStore';
 
 import OnboardingScreen from '@/components/onboarding/OnboardingScreen';
+import PlatformSelectionScreen from '@/components/onboarding/PlatformSelectionScreen';
+import RegionSelectionScreen from '@/components/onboarding/RegionSelectionScreen';
 
 export default function RootLayout() {
   usePersistPreferences();
 
   const isHydrated = useAppStore((s) => s.isHydrated);
   const hasCompletedOnboarding = useAppStore((s) => s.hasCompletedOnboarding);
+  const hasCompletedPlatformSelection = useAppStore((s) => s.hasCompletedPlatformSelection);
+  const hasCompletedRegionSelection = useAppStore((s) => s.hasCompletedRegionSelection);
 
-  // Affiche l'onboarding si :
-  // - le storage n'est pas encore lu (écran noir le temps de la lecture AsyncStorage)
-  // - ou si l'utilisateur n'a pas encore choisi ses genres
-  const showOnboarding = !isHydrated || !hasCompletedOnboarding;
+  const showGenreOnboarding = !isHydrated || !hasCompletedOnboarding;
+  const showPlatformOnboarding = isHydrated && hasCompletedOnboarding && !hasCompletedPlatformSelection;
+  const showRegionOnboarding = isHydrated && hasCompletedOnboarding && hasCompletedPlatformSelection && !hasCompletedRegionSelection;
 
   return (
     <ThemeProvider value={DarkTheme}>
@@ -33,7 +36,9 @@ export default function RootLayout() {
           }}
         />
         <BottomNavBar />
-        {showOnboarding && <OnboardingScreen />}
+        {showGenreOnboarding && <OnboardingScreen />}
+        {showPlatformOnboarding && <PlatformSelectionScreen />}
+        {showRegionOnboarding && <RegionSelectionScreen />}
       </View>
     </ThemeProvider>
   );

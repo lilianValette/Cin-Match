@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { regionIdsToCodes } from '@/constants/regions';
 import { fetchRandomMoviePage } from '@/services/tmdbService';
 import { useAppStore } from '@/store/useAppStore';
 import type { Movie } from '@/types';
@@ -82,10 +83,12 @@ export function useDiscoverMovies(options?: UseDiscoverMoviesOptions): UseTMDBRe
 
     try {
       // Sélectionne un genre selon les préférences pondérées
-      const favoriteGenres = useAppStore.getState().favoriteGenres;
+      const { favoriteGenres, selectedPlatformIds, selectedRegionIds } = useAppStore.getState();
       const genreId = pickGenreForFetch(favoriteGenres);
+      const providerIds = selectedPlatformIds.length > 0 ? selectedPlatformIds : undefined;
+      const originCodes = selectedRegionIds.length > 0 ? regionIdsToCodes(selectedRegionIds) : undefined;
 
-      const { movies: newMovies } = await fetchRandomMoviePage(genreId);
+      const { movies: newMovies } = await fetchRandomMoviePage(genreId, providerIds, originCodes);
       setMovies((prev) => {
         const existingIds = new Set(prev.map((movie) => movie.id));
         const filtered = newMovies.filter((movie) => {

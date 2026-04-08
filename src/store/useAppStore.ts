@@ -5,6 +5,10 @@ import type { DiscoveryFilters, Movie } from '@/types';
 export interface PersistedPrefs {
 	hasCompletedOnboarding: boolean;
 	favoriteGenres: Record<number, number>;
+	hasCompletedPlatformSelection: boolean;
+	selectedPlatformIds: number[];
+	hasCompletedRegionSelection: boolean;
+	selectedRegionIds: string[];
 }
 
 interface AppStore {
@@ -18,6 +22,10 @@ interface AppStore {
 	isHydrated: boolean;
 	hasCompletedOnboarding: boolean;
 	favoriteGenres: Record<number, number>;
+	hasCompletedPlatformSelection: boolean;
+	selectedPlatformIds: number[];
+	hasCompletedRegionSelection: boolean;
+	selectedRegionIds: string[];
 
 	setPreviewMovie: (movie: Movie) => void;
 	likeMovie: (movie: Movie) => void;
@@ -32,6 +40,11 @@ interface AppStore {
 
 	hydrateFromStorage: (prefs: PersistedPrefs) => void;
 	completeOnboarding: (genreIds: number[]) => void;
+	completePlatformSelection: (platformIds: number[]) => void;
+	resetPlatformSelection: () => void;
+	completeRegionSelection: (regionIds: string[]) => void;
+	resetRegionSelection: () => void;
+	resetGenreOnboarding: () => void;
 	resetGenrePreferences: () => void;
 }
 
@@ -67,6 +80,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
 	isHydrated: false,
 	hasCompletedOnboarding: false,
 	favoriteGenres: {},
+	hasCompletedPlatformSelection: false,
+	selectedPlatformIds: [],
+	hasCompletedRegionSelection: false,
+	selectedRegionIds: [],
 
 	setPreviewMovie: (movie) => set({ previewMovie: movie }),
 
@@ -127,7 +144,15 @@ export const useAppStore = create<AppStore>((set, get) => ({
 	resetSwipes: () => set({ watchlistMovieIds: [], watchlistById: {}, dislikedMovieIds: {} }),
 
 	hydrateFromStorage: (prefs) =>
-		set({ isHydrated: true, hasCompletedOnboarding: prefs.hasCompletedOnboarding, favoriteGenres: prefs.favoriteGenres }),
+		set({
+			isHydrated: true,
+			hasCompletedOnboarding: prefs.hasCompletedOnboarding,
+			favoriteGenres: prefs.favoriteGenres,
+			hasCompletedPlatformSelection: prefs.hasCompletedPlatformSelection ?? false,
+			selectedPlatformIds: prefs.selectedPlatformIds ?? [],
+			hasCompletedRegionSelection: prefs.hasCompletedRegionSelection ?? false,
+			selectedRegionIds: prefs.selectedRegionIds ?? [],
+		}),
 
 	completeOnboarding: (genreIds) => {
 		const favoriteGenres: Record<number, number> = {};
@@ -135,6 +160,30 @@ export const useAppStore = create<AppStore>((set, get) => ({
 		set({ hasCompletedOnboarding: true, favoriteGenres });
 	},
 
+	completePlatformSelection: (platformIds) => {
+		set({ hasCompletedPlatformSelection: true, selectedPlatformIds: platformIds });
+	},
+
+	resetPlatformSelection: () =>
+		set({ hasCompletedPlatformSelection: false }),
+
+	completeRegionSelection: (regionIds) => {
+		set({ hasCompletedRegionSelection: true, selectedRegionIds: regionIds });
+	},
+
+	resetRegionSelection: () =>
+		set({ hasCompletedRegionSelection: false }),
+
+	resetGenreOnboarding: () =>
+		set({ hasCompletedOnboarding: false, favoriteGenres: {} }),
+
 	resetGenrePreferences: () =>
-		set({ favoriteGenres: {}, hasCompletedOnboarding: false }),
+		set({
+			favoriteGenres: {},
+			hasCompletedOnboarding: false,
+			hasCompletedPlatformSelection: false,
+			selectedPlatformIds: [],
+			hasCompletedRegionSelection: false,
+			selectedRegionIds: [],
+		}),
 }));

@@ -8,6 +8,10 @@ const KEY = 'cinematch-prefs';
 export function usePersistPreferences() {
   const hasCompletedOnboarding = useAppStore((s) => s.hasCompletedOnboarding);
   const favoriteGenres = useAppStore((s) => s.favoriteGenres);
+  const hasCompletedPlatformSelection = useAppStore((s) => s.hasCompletedPlatformSelection);
+  const selectedPlatformIds = useAppStore((s) => s.selectedPlatformIds);
+  const hasCompletedRegionSelection = useAppStore((s) => s.hasCompletedRegionSelection);
+  const selectedRegionIds = useAppStore((s) => s.selectedRegionIds);
   const isHydrated = useAppStore((s) => s.isHydrated);
   const hydrateFromStorage = useAppStore((s) => s.hydrateFromStorage);
 
@@ -19,7 +23,7 @@ export function usePersistPreferences() {
         return;
       }
     } catch {}
-    hydrateFromStorage({ hasCompletedOnboarding: false, favoriteGenres: {} });
+    hydrateFromStorage({ hasCompletedOnboarding: false, favoriteGenres: {}, hasCompletedPlatformSelection: false, selectedPlatformIds: [], hasCompletedRegionSelection: false, selectedRegionIds: [] });
   }, []);
 
   useEffect(() => {
@@ -27,8 +31,8 @@ export function usePersistPreferences() {
     try {
       localStorage.setItem(
         KEY,
-        JSON.stringify({ hasCompletedOnboarding, favoriteGenres } satisfies PersistedPrefs),
+        JSON.stringify({ hasCompletedOnboarding, favoriteGenres, hasCompletedPlatformSelection, selectedPlatformIds, hasCompletedRegionSelection, selectedRegionIds } satisfies PersistedPrefs),
       );
     } catch {}
-  }, [hasCompletedOnboarding, favoriteGenres, isHydrated]);
+  }, [hasCompletedOnboarding, favoriteGenres, hasCompletedPlatformSelection, selectedPlatformIds, hasCompletedRegionSelection, selectedRegionIds, isHydrated]);
 }

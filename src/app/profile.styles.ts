@@ -148,11 +148,19 @@ export const styles = StyleSheet.create({
   },
 
   // ── Settings rows ──────────────────────────────
+  soonCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   settingsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingVertical: 4,
+  },
+  settingsRowDisabled: {
+    opacity: 0.5,
   },
   settingsIconWrap: {
     width: 34,
@@ -162,11 +170,17 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  settingsIconWrapDisabled: {
+    backgroundColor: '#1a1a1a',
+  },
   settingsLabel: {
     flex: 1,
     color: '#ffffff',
     fontSize: 15,
     fontWeight: '600',
+  },
+  settingsLabelDisabled: {
+    color: '#555',
   },
   soonBadge: {
     backgroundColor: '#1E1E1E',
@@ -178,6 +192,20 @@ export const styles = StyleSheet.create({
     color: '#B0B4BA',
     fontSize: 11,
     fontWeight: '700',
+    letterSpacing: 0.4,
+  },
+  editBadge: {
+    backgroundColor: '#1c1700',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: '#fdc003',
+  },
+  editText: {
+    color: '#fdc003',
+    fontSize: 11,
+    fontWeight: '800',
     letterSpacing: 0.4,
   },
   rowDivider: {

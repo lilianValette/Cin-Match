@@ -159,11 +159,23 @@ export default function ProfileScreen() {
 
   const watchlistMovieIds = useAppStore((state) => state.watchlistMovieIds);
   const watchlistById = useAppStore((state) => state.watchlistById);
-  const resetGenrePreferences = useAppStore((state) => state.resetGenrePreferences);
+  const resetGenreOnboarding = useAppStore((state) => state.resetGenreOnboarding);
+  const resetPlatformSelection = useAppStore((state) => state.resetPlatformSelection);
+  const resetRegionSelection = useAppStore((state) => state.resetRegionSelection);
 
   const handleConfirmReset = () => {
     setConfirmResetVisible(false);
-    resetGenrePreferences();
+    resetGenreOnboarding();
+    resetDiscoverCache();
+  };
+
+  const handleEditPlatforms = () => {
+    resetPlatformSelection();
+    resetDiscoverCache();
+  };
+
+  const handleEditRegions = () => {
+    resetRegionSelection();
     resetDiscoverCache();
   };
 
@@ -227,28 +239,57 @@ export default function ProfileScreen() {
         {/* ── Card : Réglages ── */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Réglages</Text>
+          <Pressable style={styles.settingsRow} onPress={handleEditPlatforms}>
+            <View style={styles.settingsIconWrap}>
+              <Ionicons name="tv-outline" size={18} color="#B0B4BA" />
+            </View>
+            <Text style={styles.settingsLabel}>Mes plateformes</Text>
+            <View style={styles.editBadge}>
+              <Text style={styles.editText}>Modifier</Text>
+            </View>
+          </Pressable>
+          <View style={styles.rowDivider} />
+          <Pressable style={styles.settingsRow} onPress={handleEditRegions}>
+            <View style={styles.settingsIconWrap}>
+              <Ionicons name="globe-outline" size={18} color="#B0B4BA" />
+            </View>
+            <Text style={styles.settingsLabel}>Origines favorites</Text>
+            <View style={styles.editBadge}>
+              <Text style={styles.editText}>Modifier</Text>
+            </View>
+          </Pressable>
+          <View style={styles.rowDivider} />
+          <Pressable style={styles.settingsRow} onPress={() => setConfirmResetVisible(true)}>
+            <View style={styles.settingsIconWrap}>
+              <Ionicons name="heart-outline" size={18} color="#B0B4BA" />
+            </View>
+            <Text style={styles.settingsLabel}>Genres favoris</Text>
+            <View style={styles.editBadge}>
+              <Text style={styles.editText}>Modifier</Text>
+            </View>
+          </Pressable>
+        </View>
+
+        {/* ── Card : Prochainement ── */}
+        <View style={styles.card}>
+          <View style={styles.soonCardHeader}>
+            <Text style={styles.cardTitle}>Prochainement</Text>
+            <Ionicons name="time-outline" size={16} color="#B0B4BA" />
+          </View>
           {SETTINGS_ITEMS.map((item, index) => (
             <React.Fragment key={item.label}>
-              <View style={styles.settingsRow}>
-                <View style={styles.settingsIconWrap}>
-                  <Ionicons name={item.icon} size={18} color="#B0B4BA" />
+              <View style={[styles.settingsRow, styles.settingsRowDisabled]}>
+                <View style={[styles.settingsIconWrap, styles.settingsIconWrapDisabled]}>
+                  <Ionicons name={item.icon} size={18} color="#555" />
                 </View>
-                <Text style={styles.settingsLabel}>{item.label}</Text>
+                <Text style={[styles.settingsLabel, styles.settingsLabelDisabled]}>{item.label}</Text>
                 <View style={styles.soonBadge}>
                   <Text style={styles.soonText}>Bientôt</Text>
                 </View>
               </View>
-              <View style={styles.rowDivider} />
+              {index < SETTINGS_ITEMS.length - 1 && <View style={styles.rowDivider} />}
             </React.Fragment>
           ))}
-          <Pressable style={styles.settingsRow} onPress={() => setConfirmResetVisible(true)}>
-            <View style={[styles.settingsIconWrap, { backgroundColor: '#1a0a09' }]}>
-              <Ionicons name="refresh-outline" size={18} color="#ff5a4a" />
-            </View>
-            <Text style={[styles.settingsLabel, { color: '#ff5a4a' }]}>
-              Réinitialiser mes genres
-            </Text>
-          </Pressable>
         </View>
 
         {/* ── Modale de confirmation reset genres ── */}
@@ -260,9 +301,9 @@ export default function ProfileScreen() {
         >
           <View style={styles.modalBackdrop}>
             <View style={styles.modalCard}>
-              <Text style={styles.modalTitle}>Réinitialiser les genres ?</Text>
+              <Text style={styles.modalTitle}>Modifier les genres ?</Text>
               <Text style={styles.modalBody}>
-                Tes genres favoris seront remis à zéro et tu pourras en sélectionner de nouveaux.
+                Tes genres favoris seront remis à zéro. Tes plateformes, origines et watchlist ne seront pas affectées.
               </Text>
               <View style={styles.modalActions}>
                 <Pressable
@@ -272,7 +313,7 @@ export default function ProfileScreen() {
                   <Text style={styles.modalBtnCancelText}>Annuler</Text>
                 </Pressable>
                 <Pressable style={styles.modalBtnConfirm} onPress={handleConfirmReset}>
-                  <Text style={styles.modalBtnConfirmText}>Réinitialiser</Text>
+                  <Text style={styles.modalBtnConfirmText}>Modifier</Text>
                 </Pressable>
               </View>
             </View>

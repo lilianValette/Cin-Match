@@ -12,8 +12,34 @@ import type {
 } from '@/types';
 import { Config } from '@/constants/Config';
 
+interface TMDBWatchProviderListItem {
+  provider_id: number;
+  provider_name: string;
+  logo_path: string | null;
+  display_priority: number;
+}
+
+interface TMDBWatchProvidersListResponse {
+  results: TMDBWatchProviderListItem[];
+}
+
 /** Genres TMDB → nom lisible (cache local pour éviter un appel par film) */
 const GENRE_CACHE: Record<number, string> = {};
+
+export async function fetchWatchProviders(countryCode = 'FR'): Promise<StreamingPlatform[]> {
+  const data = await tmdbFetch<TMDBWatchProvidersListResponse>('/watch/providers/movie', {
+    watch_region: countryCode,
+    language: 'fr-FR',
+  });
+  return data.results
+    .sort((a, b) => a.display_priority - b.display_priority)
+    .map((p) => ({
+      id: p.provider_id,
+      name: p.provider_name,
+      logoUrl: p.logo_path ? `https://image.tmdb.org/t/p/w92${p.logo_path}` : '',
+      categories: [],
+    }));
+}
 
 export async function fetchAllGenres(): Promise<Genre[]> {
   const data = await tmdbFetch<{ genres: Genre[] }>('/genre/movie/list', {
@@ -51,6 +77,8 @@ function mapMovie(raw: TMDBMovieRaw): Movie {
  */
 export async function fetchRandomMoviePage(
   genreId?: number,
+  providerIds?: number[],
+  originCountryCodes?: string[],
 ): Promise<{ movies: Movie[]; totalPages: number }> {
   await fetchGenres();
 
@@ -61,6 +89,13 @@ export async function fetchRandomMoviePage(
   };
   if (genreId != null) {
     baseParams.with_genres = String(genreId);
+  }
+  if (providerIds && providerIds.length > 0) {
+    baseParams.with_watch_providers = providerIds.join('|');
+    baseParams.watch_region = 'FR';
+  }
+  if (originCountryCodes && originCountryCodes.length > 0) {
+    baseParams.with_origin_country = originCountryCodes.join('|');
   }
 
   const firstPage = await tmdbFetch<TMDBResponse<TMDBMovieRaw>>('/discover/movie', baseParams);
