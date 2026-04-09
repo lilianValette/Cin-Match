@@ -41,6 +41,8 @@ export default function Root({ children }: PropsWithChildren) {
         <title>CinéMatch</title>
         <link rel="icon" type="image/svg+xml" href={FAVICON_HREF} />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <ScrollViewStyleReset />
       </head>
       <body>{children}</body>
