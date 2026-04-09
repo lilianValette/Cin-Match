@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: cinematch
+    runtime: static
+    buildCommand: npm install && npm run build:web
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: EXPO_PUBLIC_TMDB_API_KEY
+        sync: false
+      - key: EXPO_PUBLIC_TMDB_ACCESS_TOKEN
+        sync: false
