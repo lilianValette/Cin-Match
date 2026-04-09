@@ -47,7 +47,3 @@ app-example
 
 CLAUDE.md
 .claude/
-
-# package files
-package.json
-package-lock.json
