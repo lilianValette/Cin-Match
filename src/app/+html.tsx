@@ -40,6 +40,7 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <title>CinéMatch</title>
         <link rel="icon" type="image/svg+xml" href={FAVICON_HREF} />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <ScrollViewStyleReset />
       </head>
       <body>{children}</body>
